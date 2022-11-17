@@ -1,6 +1,6 @@
 const express = require('express');
 const mongojs = require('mongojs')
-const db = mongojs('mongodb://127.0.0.1:29000/test', ['inventory'])
+const db = mongojs('mongodb://127.0.0.1:27017/ws', ['inventory'])
 const app = express();
 const port = 3000;
 
@@ -23,9 +23,15 @@ let remove = function(res, id){
         }
     });
 }
+
+
 app.delete('/inventory/:id', (req, res) => {
     remove(res, req.params.id)
 });
+
+ //elementuak borratzeko url-a saturn /inventory/delete/elementuaren id-a
+
+ //app.get izan gabe contsolan idatzi beharko zen curl aginduaren bidez curl DELETE 
 
 app.get('/inventory/delete/:id', (req, res) => {
     remove(res, req.params.id)
@@ -73,6 +79,20 @@ app.post('/edit/:id', (req, res) => {
             query: {_id: mongojs.ObjectId(req.params.id)},
             update: {$set: req.body}
         },
+        (err, result) => {
+            if (err) {
+                res.send(err)
+            } else {
+                res.redirect('/inventory')
+            }
+        })
+})
+
+app.post('/gehitu', (req, res) => {
+    req.body.size = JSON.parse(req.body.size)
+    console.log(req.body)
+
+    db.inventory.inserOne(req.body, 
         (err, result) => {
             if (err) {
                 res.send(err)
